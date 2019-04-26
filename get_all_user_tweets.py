@@ -10,6 +10,8 @@ from PIL import Image
 import numpy as np
 
 d = path.dirname(__file__)
+screen_name = 'real_dr_b'
+
 
 oauth_token = SecureConfig.oauth_token
 oauth_token_secret = SecureConfig.oauth_token_secret
@@ -23,7 +25,7 @@ if not (oauth_token and oauth_token_secret):
     oauth_token = final_step.get("oauth_token")
     oauth_token_secret = final_step.get("oauth_token_secret")
 twitter = Twython(consumer_key, consumer_secret, oauth_token, oauth_token_secret)
-home_timeline = twitter.get_user_timeline(screen_name='real_dr_b', tweet_mode='extended', count=50)
+home_timeline = twitter.get_user_timeline(screen_name=screen_name, tweet_mode='extended', count=50)
 
 tweet_ids_list = []
 for tweet in home_timeline:
@@ -33,7 +35,7 @@ all_users_fav_users = []
 text = ''
 
 for tweet_id_str in tweet_ids_list:
-    rts_and_favs = get_twitter_user_rts_and_favs('aseman_banoo', str(tweet_id_str))
+    rts_and_favs = get_twitter_user_rts_and_favs(screen_name, str(tweet_id_str))
     try:
         favs = rts_and_favs[1]
         all_users_fav_users.append(favs)
@@ -45,7 +47,6 @@ for tweet_id_str in tweet_ids_list:
     except Exception:
         pass
 print(text)
-
 
 d = path.dirname(__file__)
 twitter_mask = np.array(Image.open(path.join(d, "twitter-logo.jpg")))
