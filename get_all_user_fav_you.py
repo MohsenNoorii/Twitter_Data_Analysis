@@ -10,7 +10,7 @@ from PIL import Image
 import numpy as np
 
 d = path.dirname(__file__)
-screen_name = 'real_dr_b'
+screen_name = 'sp_hos'
 
 
 oauth_token = SecureConfig.oauth_token
