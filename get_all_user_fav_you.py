@@ -1,75 +1,60 @@
 #!/usr/bin/env python
+import datetime
 
-from secure_config import SecureConfig
+from twython import TwythonError
+
 from specefic_tweet import get_twitter_user_rts_and_favs
-from twitter_api.api import *
-from persian_wordcloud.wordcloud import PersianWordCloud, add_stop_words
-from wordcloud import STOPWORDS as EN_STOPWORDS
-from os import path
-from PIL import Image
-import numpy as np
+from twitter_api.api import get_twitter_obj, get_rts_user_ids
 
-d = path.dirname(__file__)
-screen_name = 'sp_hos'
+from word_cloud import word_cloud
 
+screen_name = 'faridebrahimi62'
 
-oauth_token = SecureConfig.oauth_token
-oauth_token_secret = SecureConfig.oauth_token_secret
-if not (oauth_token and oauth_token_secret):
-    auth = get_verify_link()
-    auth_url = auth['auth_url']
-    print(auth_url)
-    verify_code = input()
-    final_step = final_verify(oauth_verifier=verify_code, auth=auth)
-    print(final_step)
-    oauth_token = final_step.get("oauth_token")
-    oauth_token_secret = final_step.get("oauth_token_secret")
-twitter = Twython(consumer_key, consumer_secret, oauth_token, oauth_token_secret)
-home_timeline = twitter.get_user_timeline(screen_name=screen_name, tweet_mode='extended', count=50)
+tw = get_twitter_obj()
 
-tweet_ids_list = []
+home_timeline = tw.get_user_timeline(screen_name=screen_name, tweet_mode='extended', count=50)
+
+pure_user_tweet_ids = []
 for tweet in home_timeline:
-    tweet_id = tweet.get('id')
-    tweet_ids_list.append(tweet_id)
-all_users_fav_users = []
+    tweet_id = tweet["id"]
+    retweeted = tweet["retweeted"]
+    if not retweeted:
+        pure_user_tweet_ids.append(tweet_id)
+
 text = ''
-
-for tweet_id_str in tweet_ids_list:
-    rts_and_favs = get_twitter_user_rts_and_favs(screen_name, str(tweet_id_str))
-    try:
-        favs = rts_and_favs[1]
-        all_users_fav_users.append(favs)
-        for user_id in favs:
-            user = twitter.show_user(user_id=user_id)
-            name = user.get('screen_name')
-            name = name.replace(' ', '_')
-            text += name + ' '
-    except Exception:
-        pass
-print(text)
-
-d = path.dirname(__file__)
-twitter_mask = np.array(Image.open(path.join(d, "twitter-logo.jpg")))
-
-stopwords = add_stop_words(['کاسپین'])
-stopwords |= EN_STOPWORDS
-
-# Generate a word cloud image
-
-wordcloud = PersianWordCloud(
-    only_persian=False,
-    max_words=200,
-    stopwords=stopwords,
-    margin=0,
-    width=800,
-    height=800,
-    min_font_size=1,
-    max_font_size=500,
-    random_state=True,
-    background_color="white",
-    mask=twitter_mask
-).generate(text)
-
-image = wordcloud.to_image()
-image.show()
-image.save('en-fa-result.png')
+# for tweet_id in pure_user_tweet_ids:
+#     ids = get_rts_user_ids(tw, tweet_id)
+#     if ids:
+#         for user_id in ids:
+#             print(user_id)
+#             print(type(user_id))
+#             try:
+#                 user = tw.show_user(user_id=user_id)
+#                 screen_name = user["screen_name"]
+#                 text += screen_name + ' '
+#             except TwythonError as e:
+#                 print(e)
+#                 print(str(user_id))
+#
+# word_cloud(text)
+rts_and_favs = get_twitter_user_rts_and_favs(screen_name, '1117417835838550018')
+print(rts_and_favs)
+# all_users_fav_users = []
+# text = ''
+# print(pure_user_tweet_ids)
+# print(datetime.datetime.now())
+# for tweet_id_str in pure_user_tweet_ids:
+#     rts_and_favs = get_twitter_user_rts_and_favs(screen_name, str(tweet_id_str))
+#     try:
+#         favs = rts_and_favs[1]
+#         rts = rts_and_favs[1]
+#         all_users_fav_users.append(rts)
+#         for user_id in rts:
+#             user = tw.show_user(user_id=user_id)
+#             name = user.get('screen_name')
+#             name = name.replace(' ', '_')
+#             text += name + ' '
+#     except Exception:
+#         pass
+# print(datetime.datetime.now())
+# print(text)

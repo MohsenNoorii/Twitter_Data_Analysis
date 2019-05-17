@@ -1,6 +1,11 @@
+import random
+import time
+
 from twython import Twython, TwythonError
 from main_config import Config
 import logging
+
+from secure_config import SecureConfig
 
 consumer_key = Config.consumer_key
 consumer_secret = Config.consumer_secret
@@ -65,3 +70,37 @@ def search_api(user, query):
     except TwythonError as e:
         print(e.error_code)
         return False
+
+
+def get_twitter_obj():
+    oauth_token = SecureConfig.oauth_token
+    oauth_token_secret = SecureConfig.oauth_token_secret
+    if not (oauth_token and oauth_token_secret):
+        auth = get_verify_link()
+        auth_url = auth['auth_url']
+        print(auth_url)
+        verify_code = input()
+        final_step = final_verify(oauth_verifier=verify_code, auth=auth)
+        print(final_step)
+        oauth_token = final_step.get("oauth_token")
+        oauth_token_secret = final_step.get("oauth_token_secret")
+    twitter = Twython(consumer_key, consumer_secret, oauth_token, oauth_token_secret)
+    return twitter
+
+
+def get_rts_user_ids(twitter, tweet_id):
+    all_ids = []
+    cursor = -1
+    while cursor != 0:
+        try:
+            retweeters_ids = twitter.get_retweets(id='1117417835838550018')
+            cursor = retweeters_ids["next_cursor"]
+            ids = retweeters_ids["ids"]
+            all_ids += ids
+        except TwythonError as e:
+            print(e.error_code)
+            raise
+        if cursor:
+            s = random.randint(55, 65)
+            time.sleep(s)
+    return all_ids

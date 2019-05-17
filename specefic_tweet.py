@@ -12,6 +12,7 @@ def get_twitter_user_rts_and_favs(screen_name, status_id):
     num_favs = 0
     rt_users = []
     fav_users = []
+    print(root)
 
     for ul in root.find_class('stats'):
         for li in ul.cssselect('li'):
@@ -20,6 +21,7 @@ def get_twitter_user_rts_and_favs(screen_name, status_id):
 
             if cls_name.find('retweet') >= 0:
                 num_rts = int(li.cssselect('a')[0].attrib['data-tweet-stat-count'])
+                print(num_rts)
 
             elif cls_name.find('favorit') >= 0:
                 num_favs = int(li.cssselect('a')[0].attrib['data-tweet-stat-count'])
